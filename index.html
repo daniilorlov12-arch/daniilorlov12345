@@ -79,10 +79,9 @@
 
     <script>
         // ==================== ЗАГРУЗКА И СОХРАНЕНИЕ ====================
-        let readBooks=[],newsHistory=[],lastRentRefresh=0,daysSinceLastNews=0,currentLearnTopic=null,selectedBizIndex=null;
-        let consecutiveNextDays = 0;
+        let readBooks=[],newsHistory=[],lastRentRefresh=0,daysSinceLastNews=0,currentLearnTopic=null,selectedBizIndex=null,consecutiveNextDays=0;
         function loadGame(){
-            const saved=localStorage.getItem('fingramFinalV4');
+            const saved=localStorage.getItem('fingramFinalSave');
             if(saved){
                 const data=JSON.parse(saved);
                 balance=data.balance??4000;capital=data.capital??4000;day=data.day??1;level=data.level??1;xp=data.xp??0;
@@ -97,7 +96,7 @@
                 consecutiveNextDays=data.consecutiveNextDays||0;
                 if(data.assets){Object.keys(data.assets).forEach(k=>{assets[k].price=data.assets[k].price;assets[k].history=data.assets[k].history;});}
                 currentNews=data.currentNews||{text:'📊 Рынок стабилен',effects:{},remaining:0};
-                myLots=data.myLots||[];lastCollect=data.lastCollect||0;selectedAsset=data.selectedAsset||'silver';
+                selectedAsset=data.selectedAsset||'silver';
                 rentRequests=data.rentRequests||[];carRentRequests=data.carRentRequests||[];activeRentals=data.activeRentals||[];
                 if(data.empireItems){reItems=data.empireItems.re||reItems;carItems=data.empireItems.car||carItems;bizItems=data.empireItems.biz||bizItems;}
             }else{balance=4000;capital=4000;day=1;level=1;xp=0;}
@@ -105,9 +104,9 @@
         function saveGame(){
             const data={balance,capital,day,level,xp,customization,empire,inventory,portfolio,stocks,stockPrices,stockInvested,readBooks,
                 assets:Object.fromEntries(Object.entries(assets).map(([k,v])=>[k,{price:v.price,history:v.history}])),
-                currentNews,myLots,lastCollect,selectedAsset,rentRequests,carRentRequests,activeRentals,newsHistory,daysSinceLastNews,consecutiveNextDays,
+                currentNews,selectedAsset,rentRequests,carRentRequests,activeRentals,newsHistory,daysSinceLastNews,consecutiveNextDays,
                 empireItems:{re:reItems,car:carItems,biz:bizItems}};
-            localStorage.setItem('fingramFinalV4',JSON.stringify(data));
+            localStorage.setItem('fingramFinalSave',JSON.stringify(data));
         }
 
         // ==================== ГЛОБАЛЬНЫЕ ДАННЫЕ ====================
@@ -133,7 +132,7 @@
             {text:'📈 Снижение ставки ЦБ',effects:{silver:5,oil:8,gas:8,wheat:5,tech:12,bank:15,build:12}},
             {text:'📈 Рост спроса на технологии',effects:{silver:-3,oil:-3,gas:-3,wheat:0,tech:15,bank:5,build:0}}
         ];
-        let empire={re:[],cars:[],biz:[]},lastCollect=0;
+        let empire={re:[],cars:[],biz:[]};
         let reItems=[
             {icon:'🏢',name:'Студия',price:10000,inc:200,level:1},{icon:'🏢',name:'1-к квартира',price:16000,inc:320,level:1},
             {icon:'🏢',name:'2-к квартира',price:24000,inc:480,level:1},{icon:'🏢',name:'3-к квартира',price:36000,inc:720,level:1},
@@ -204,19 +203,12 @@
             html+=`<div id="custom-page" class="page ${currentPage==='custom'?'active':''}"><h2 style="color:#FBBF24">🎨</h2><div class="card"><h3>Аватарки</h3><div class="grid" id="avatarGrid"></div><h3>Рамки</h3><div class="grid"><div class="card"><div class="frame-preview">${customization.icon}</div><p>Обычная</p><button class="btn-small buy-frame" data-frame="default" data-price="0">0 🪙</button></div><div class="card"><div class="frame-preview silver">${customization.icon}</div><p>Серебро</p><button class="btn-small buy-frame" data-frame="silver" data-price="1000">1000 🪙</button></div><div class="card"><div class="frame-preview gold">${customization.icon}</div><p>Золото</p><button class="btn-small buy-frame" data-frame="gold" data-price="5000">5000 🪙</button></div><div class="card"><div class="frame-preview neon">${customization.icon}</div><p>Неон</p><button class="btn-small buy-frame" data-frame="neon" data-price="10000">10000 🪙</button></div></div></div></div>`;
             html+=`<div id="news-page" class="page ${currentPage==='news'?'active':''}"><h2 style="color:#FBBF24">📰</h2>${newsHistory.slice(0,10).map(n=>`<div class="news-item"><strong>День ${n.day}:</strong> ${n.text}</div>`).join('')}</div>`;
             const frameClass=customization.frame==='silver'?'silver':(customization.frame==='gold'?'gold':(customization.frame==='neon'?'neon':''));
-            // Профиль с арендой
-            const rentedRE = activeRentals.filter(a => a.category === undefined || a.obj).map(a => a.obj || a).filter(o => o && reItems.some(ri => ri.name === o.name));
-            const rentedCars = activeRentals.filter(a => a.category === undefined || a.obj).map(a => a.obj || a).filter(o => o && carItems.some(ci => ci.name === o.name));
-            const allRE = [...empire.re.map(r => ({...r, rented: false})), ...activeRentals.map(a => a.obj).filter(o => o && reItems.some(ri => ri.name === o.name)).map(o => ({...o, rented: true}))];
-            const allCars = [...empire.cars.map(c => ({...c, rented: false})), ...activeRentals.map(a => a.obj).filter(o => o && carItems.some(ci => ci.name === o.name)).map(o => ({...o, rented: true}))];
+            const allRE=[...empire.re.map(r=>({...r,rented:false})),...activeRentals.map(a=>a.obj).filter(o=>o&&reItems.some(ri=>ri.name===o.name)).map(o=>({...o,rented:true}))];
+            const allCars=[...empire.cars.map(c=>({...c,rented:false})),...activeRentals.map(a=>a.obj).filter(o=>o&&carItems.some(ci=>ci.name===o.name)).map(o=>({...o,rented:true}))];
             html+=`<div id="profile-page" class="page ${currentPage==='profile'?'active':''}"><h2 style="color:#FBBF24">👤 Профиль</h2><div class="card" style="text-align:center"><div class="frame-preview ${frameClass}">${customization.icon}</div><h3>Игрок</h3><p><span class="level-badge">Ур. ${level}</span></p><div class="progress-bar"><div class="progress-fill" style="width:${(xp/5000)*100}%"></div></div><p>${xp}/5000 XP</p><p><span class="stat-value">${balance.toFixed(1)}</span> 🪙</p></div><div class="card" style="margin-top:15px"><h3 style="color:#FBBF24">🏢 Империя</h3><p><strong>🏠 Недвижимость (${allRE.length}):</strong> ${allRE.map(r=>`${r.icon} ${r.name} ⭐${r.level}${r.rented?' <span class="rented-badge">в аренде</span>':''}`).join(', ')||'Нет'}</p><p><strong>🚗 Машины (${allCars.length}):</strong> ${allCars.map(c=>`${c.icon} ${c.name} ⭐${c.level}${c.rented?' <span class="rented-badge">в аренде</span>':''}`).join(', ')||'Нет'}</p><p><strong>🏪 Бизнесы (${empire.biz.length}):</strong> ${empire.biz.map(b=>`${b.icon} ${b.customName||b.name} ⭐${b.level}`).join(', ')||'Нет'}</p><p class="income-badge">📈 Доход: ${income} 🪙/10 мин</p></div></div>`;
             app.innerHTML=html;
-            if(currentPage==='custom')renderAvatars();
-            if(currentPage==='rent')attachRentEvents();
-            if(currentPage==='myBusiness')attachBizEvents();
-            attachEvents();
-            if(currentPage==='exchange')drawChart();
-            updateAllBalances();saveGame();
+            if(currentPage==='custom')renderAvatars();if(currentPage==='rent')attachRentEvents();if(currentPage==='myBusiness')attachBizEvents();
+            attachEvents();if(currentPage==='exchange')drawChart();updateAllBalances();saveGame();
         }
         function renderAvatars(){document.getElementById('avatarGrid').innerHTML=avatarIcons.map(icon=>`<div class="card" style="text-align:center"><div style="font-size:3rem">${icon}</div><button class="btn-small buy-avatar" data-icon="${icon}" data-price="500">500 🪙</button></div>`).join('');}
         function attachBizEvents(){
@@ -238,16 +230,7 @@
             document.getElementById('backToLearn')?.addEventListener('click',()=>{currentLearnTopic=null;render();});
             document.querySelectorAll('.buy-btn').forEach(b=>{b.onclick=()=>{const k=b.dataset.k;const current=portfolio[k]||0;if(current>=10){alert('Нельзя иметь больше 10 единиц одного актива!');return;}if(balance>=assets[k].price){balance-=assets[k].price;portfolio[k]=(portfolio[k]||0)+1;render();saveGame();}else alert('Недостаточно!');};});
             document.querySelectorAll('.sell-btn').forEach(b=>{b.onclick=()=>{const k=b.dataset.k;if(portfolio[k]>0){portfolio[k]--;balance+=assets[k].price;render();saveGame();}else alert('Нет!');};});
-            document.getElementById('nextDayBtn').onclick=()=>{
-                const hasStocks=Object.values(portfolio).some(v=>v>0);
-                if(hasStocks){consecutiveNextDays++;}else{consecutiveNextDays=0;}
-                const cost=hasStocks?(consecutiveNextDays>=10?6:4):1;
-                if(balance<cost)return alert('Недостаточно!');balance-=cost;day++;daysSinceLastNews++;
-                if(daysSinceLastNews>=4&&currentNews.remaining<=0){daysSinceLastNews=0;const news=newsList[Math.floor(Math.random()*newsList.length)];currentNews={text:news.text,effects:{...news.effects},remaining:4};newsHistory.unshift({day,text:news.text});if(newsHistory.length>10)newsHistory.pop();}
-                if(currentNews.remaining>0){currentNews.remaining--;}
-                Object.keys(assets).forEach(k=>{const effect=currentNews.remaining>=0?(currentNews.effects[k]||0):0;const deviation=(assets[k].price-basePrices[k])/basePrices[k];const meanReversion=-deviation*0.5;const randomChange=(Math.random()*12-6)*(Math.random()>0.5?1:-1);const change=effect+randomChange+meanReversion;assets[k].price=Math.max(50,assets[k].price*(1+change/100));assets[k].history.push(assets[k].price);if(assets[k].history.length>15)assets[k].history.shift();});
-                Object.keys(stockPrices).forEach(k=>{stockPrices[k]=Math.max(50000,stockPrices[k]*(1+(Math.random()*6-3)/100));});render();saveGame();
-            };
+            document.getElementById('nextDayBtn').onclick=()=>{const hasStocks=Object.values(portfolio).some(v=>v>0);if(hasStocks){consecutiveNextDays++;}else{consecutiveNextDays=0;}const cost=hasStocks?(consecutiveNextDays>=10?6:4):1;if(balance<cost)return alert('Недостаточно!');balance-=cost;day++;daysSinceLastNews++;if(daysSinceLastNews>=4&&currentNews.remaining<=0){daysSinceLastNews=0;const news=newsList[Math.floor(Math.random()*newsList.length)];currentNews={text:news.text,effects:{...news.effects},remaining:4};newsHistory.unshift({day,text:news.text});if(newsHistory.length>10)newsHistory.pop();}if(currentNews.remaining>0){currentNews.remaining--;}Object.keys(assets).forEach(k=>{const effect=currentNews.remaining>=0?(currentNews.effects[k]||0):0;const deviation=(assets[k].price-basePrices[k])/basePrices[k];const meanReversion=-deviation*0.5;const randomChange=(Math.random()*12-6)*(Math.random()>0.5?1:-1);const change=effect+randomChange+meanReversion;assets[k].price=Math.max(50,assets[k].price*(1+change/100));assets[k].history.push(assets[k].price);if(assets[k].history.length>15)assets[k].history.shift();});Object.keys(stockPrices).forEach(k=>{stockPrices[k]=Math.max(50000,stockPrices[k]*(1+(Math.random()*6-3)/100));});render();saveGame();};
             document.getElementById('assetSelect').onchange=(e)=>{selectedAsset=e.target.value;drawChart();};
             document.querySelectorAll('.buy-re').forEach(b=>{b.onclick=()=>{const i=reItems[parseInt(b.dataset.idx)];if(balance>=i.price){balance-=i.price;empire.re.push({...i});render();saveGame();}else alert('Недостаточно!');};});
             document.querySelectorAll('.upgrade-re').forEach(b=>{b.onclick=()=>{const i=reItems[parseInt(b.dataset.idx)];const cost=Math.floor(i.price*(0.35+(i.level-1)*0.09));if(i.level>=8)return alert('Макс!');if(balance>=cost){balance-=cost;i.level++;i.inc=Math.floor(i.price*0.02);render();saveGame();}else alert('Недостаточно!');};});
