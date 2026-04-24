@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>ФинГрам · Мобайл</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: #0F172A; color: #F1F5F9; min-height: 100vh; padding-bottom: 20px; }
+        .header { background: #0B1320; padding: 15px 20px; border-bottom: 1px solid #334155; position: sticky; top: 0; z-index: 100; }
+        .school-name { font-size: 1.5rem; font-weight: bold; color: #FBBF24; }
+        .school-slogan { color: #94A3B8; font-size: 0.8rem; }
+        .nav-scroll { display: flex; overflow-x: auto; gap: 6px; margin-top: 10px; padding-bottom: 5px; -webkit-overflow-scrolling: touch; }
+        .nav-scroll::-webkit-scrollbar { display: none; }
+        .nav-link { padding: 12px 16px; color: #94A3B8; text-decoration: none; border-radius: 40px; cursor: pointer; font-size: 0.9rem; white-space: nowrap; background: #1E293B; touch-action: manipulation; }
+        .nav-link.active { background: #FBBF24; color: #0F172A; }
+        .container { padding: 15px; }
+        .page { display: none; } .page.active { display: block; }
+        .btn { padding: 16px 20px; background: #FBBF24; color: #0F172A; border: none; border-radius: 60px; font-weight: bold; cursor: pointer; font-size: 1.1rem; width: 100%; margin: 8px 0; touch-action: manipulation; }
+        .btn-small { padding: 12px 16px; font-size: 0.95rem; width: auto; display: inline-block; }
+        .btn-secondary { background: transparent; color: #F1F5F9; border: 2px solid #334155; }
+        .btn:disabled { opacity: 0.6; background: #64748B; }
+        .card { background: #1E293B; padding: 18px; border-radius: 24px; border: 1px solid #334155; margin-bottom: 15px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 15px 0; }
+        .stat-value { font-size: 1.8rem; font-weight: bold; color: #FBBF24; }
+        .progress-bar { height: 14px; background: #0F172A; border-radius: 20px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #10B981; }
+        .level-badge { display: inline-block; padding: 6px 16px; background: #FBBF24; color: #0F172A; border-radius: 40px; font-weight: bold; }
+        .empire-item { background: #0F172A; padding: 15px; border-radius: 20px; border: 1px solid #334155; text-align: center; }
+        .empire-item.owned { border-color: #FBBF24; background: #1E293B; }
+        .empire-icon { font-size: 2.5rem; } .income-badge { color: #10B981; font-weight: bold; }
+        select, input { padding: 16px; background: #0F172A; color: white; border: 1px solid #334155; border-radius: 20px; font-size: 1rem; width: 100%; margin: 8px 0; }
+        canvas { max-width: 100%; height: auto; background: #0F172A; border-radius: 10px; }
+        .balance-badge { background: #FBBF24; color: #0F172A; padding: 6px 14px; border-radius: 40px; font-weight: bold; display: inline-block; }
+        .frame-preview { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; border: 3px solid #334155; }
+        .frame-preview.silver { border-color: #C0C0C0; box-shadow: 0 0 10px #C0C0C0; }
+        .frame-preview.gold { border-color: #FFD700; box-shadow: 0 0 15px #FFD700; }
+        .frame-preview.neon { border-color: #00FF00; box-shadow: 0 0 20px #00FF00; }
+        .news-banner { background: #0F172A; padding: 12px; border-radius: 16px; margin-bottom: 15px; border-left: 4px solid #FBBF24; }
+        .chart-axis-label { display: flex; justify-content: space-between; color: #94A3B8; font-size: 0.7rem; margin-top: 5px; }
+        .stars { color: #FBBF24; font-size: 0.9rem; letter-spacing: 2px; }
+        .rent-request { background: #0F172A; padding: 15px; border-radius: 16px; margin-bottom: 10px; border: 1px solid #334155; }
+        .news-item { background: #0F172A; padding: 15px; border-radius: 16px; margin-bottom: 10px; cursor: pointer; border: 1px solid #334155; }
+        .learn-topic-card { background: #0F172A; padding: 20px; border-radius: 20px; border: 1px solid #334155; cursor: pointer; transition: all 0.2s; text-align: center; }
+        .learn-topic-card:hover { border-color: #FBBF24; transform: translateY(-3px); }
+        .learn-topic-card h4 { color: #FBBF24; margin-bottom: 10px; font-size: 1.1rem; }
+        .learn-topic-card p { color: #94A3B8; font-size: 0.9rem; } .learn-topic-icon { font-size: 2rem; margin-bottom: 10px; }
+        .learn-detail-card { background: #0F172A; padding: 20px; border-radius: 20px; border: 1px solid #334155; margin-bottom: 15px; }
+        .learn-detail-card h4 { color: #FBBF24; margin-bottom: 10px; }
+        .example-box { background: #1E293B; padding: 12px; border-radius: 12px; margin: 10px 0; border-left: 3px solid #10B981; }
+        .life-box { background: #1E293B; padding: 12px; border-radius: 12px; margin: 10px 0; border-left: 3px solid #FBBF24; }
+        .biz-detail-card { background: #0F172A; padding: 15px; border-radius: 16px; margin-bottom: 10px; }
+        .rented-badge { background: #FBBF24; color: #0F172A; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; margin-left: 5px; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="school-name">ОДИНДЕВЯТЬ</div>
+        <div class="school-slogan">Образование со смыслом</div>
+        <div style="margin-top: 10px; display: flex; gap: 8px;">
+            <span class="balance-badge">🪙 <span id="mobileBalance">4000</span></span>
+            <span class="balance-badge">📈 <span id="mobileLevel">Ур. 1</span></span>
+        </div>
+        <div class="nav-scroll" id="navScroll">
+            <a class="nav-link active" data-page="home">🏠</a>
+            <a class="nav-link" data-page="learn">📚</a>
+            <a class="nav-link" data-page="books">📖</a>
+            <a class="nav-link" data-page="stocks">📈 Акции</a>
+            <a class="nav-link" data-page="exchange">🛢️ Биржа</a>
+            <a class="nav-link" data-page="news">📰 Новости</a>
+            <a class="nav-link" data-page="empire">🏢</a>
+            <a class="nav-link" data-page="rent">🏠 Аренда</a>
+            <a class="nav-link" data-page="myBusiness">🏪 Бизнесы</a>
+            <a class="nav-link" data-page="custom">🎨</a>
+            <a class="nav-link" data-page="profile">👤</a>
+        </div>
+    </header>
+    <div class="container" id="appContainer"></div>
+
+    <script>
+        // ==================== ЗАГРУЗКА И СОХРАНЕНИЕ ====================
+        let readBooks=[],newsHistory=[],lastRentRefresh=0,daysSinceLastNews=0,currentLearnTopic=null,selectedBizIndex=null;
+        let consecutiveNextDays = 0;
+        function loadGame(){
+            const saved=localStorage.getItem('fingramFinalV4');
+            if(saved){
+                const data=JSON.parse(saved);
+                balance=data.balance??4000;capital=data.capital??4000;day=data.day??1;level=data.level??1;xp=data.xp??0;
+                customization=data.customization||{frame:'default',icon:'👤'};
+                empire=data.empire||{re:[],cars:[],biz:[]};
+                inventory=data.inventory||{skins:[],boosters:[],tickets:[],trophies:[],dice:[],stars:[]};
+                portfolio=data.portfolio||{silver:0,oil:0,gas:0,wheat:0,tech:0,bank:0,build:0};
+                stocks=data.stocks||{nike:0,adidas:0,apple:0,tesla:0,mcdonalds:0,cola:0};
+                stockPrices=data.stockPrices||{nike:100000,adidas:120000,apple:250000,tesla:1000000,mcdonalds:180000,cola:80000};
+                stockInvested=data.stockInvested||{nike:0,adidas:0,apple:0,tesla:0,mcdonalds:0,cola:0};
+                readBooks=data.readBooks||[];newsHistory=data.newsHistory||[];daysSinceLastNews=data.daysSinceLastNews||0;
+                consecutiveNextDays=data.consecutiveNextDays||0;
+                if(data.assets){Object.keys(data.assets).forEach(k=>{assets[k].price=data.assets[k].price;assets[k].history=data.assets[k].history;});}
+                currentNews=data.currentNews||{text:'📊 Рынок стабилен',effects:{},remaining:0};
+                myLots=data.myLots||[];lastCollect=data.lastCollect||0;selectedAsset=data.selectedAsset||'silver';
+                rentRequests=data.rentRequests||[];carRentRequests=data.carRentRequests||[];activeRentals=data.activeRentals||[];
+                if(data.empireItems){reItems=data.empireItems.re||reItems;carItems=data.empireItems.car||carItems;bizItems=data.empireItems.biz||bizItems;}
+            }else{balance=4000;capital=4000;day=1;level=1;xp=0;}
+        }
+        function saveGame(){
+            const data={balance,capital,day,level,xp,customization,empire,inventory,portfolio,stocks,stockPrices,stockInvested,readBooks,
+                assets:Object.fromEntries(Object.entries(assets).map(([k,v])=>[k,{price:v.price,history:v.history}])),
+                currentNews,myLots,lastCollect,selectedAsset,rentRequests,carRentRequests,activeRentals,newsHistory,daysSinceLastNews,consecutiveNextDays,
+                empireItems:{re:reItems,car:carItems,biz:bizItems}};
+            localStorage.setItem('fingramFinalV4',JSON.stringify(data));
+        }
+
+        // ==================== ГЛОБАЛЬНЫЕ ДАННЫЕ ====================
+        let balance=4000,capital=4000,day=1,level=1,xp=0,currentPage='home';
+        let customization={frame:'default',icon:'👤'};
+        let stocks={nike:0,adidas:0,apple:0,tesla:0,mcdonalds:0,cola:0};
+        let stockPrices={nike:100000,adidas:120000,apple:250000,tesla:1000000,mcdonalds:180000,cola:80000};
+        let stockInvested={nike:0,adidas:0,apple:0,tesla:0,mcdonalds:0,cola:0};
+        const basePrices={silver:1000,oil:1500,gas:800,wheat:500,tech:2500,bank:1800,build:2200};
+        let assets={
+            silver:{name:'🥈 Серебро',price:1000,history:[1000]},
+            oil:{name:'🛢️ Нефть',price:1500,history:[1500]},gas:{name:'🔥 Газ',price:800,history:[800]},
+            wheat:{name:'🌾 Пшеница',price:500,history:[500]},tech:{name:'📱 IT-акции',price:2500,history:[2500]},
+            bank:{name:'🏦 Банки',price:1800,history:[1800]},build:{name:'🏗️ Строительство',price:2200,history:[2200]}
+        };
+        let portfolio={silver:0,oil:0,gas:0,wheat:0,tech:0,bank:0,build:0},selectedAsset='silver';
+        let currentNews={text:'📊 Рынок стабилен',effects:{},remaining:0};
+        const newsList=[
+            {text:'📈 Засуха в США',effects:{silver:0,oil:0,gas:0,wheat:15,tech:-5,bank:0,build:-3}},
+            {text:'📉 Кризис в экономике',effects:{silver:-5,oil:-10,gas:-8,tech:-15,wheat:-8,bank:-15,build:-12}},
+            {text:'📈 Конфликт на Ближнем Востоке',effects:{silver:5,oil:18,gas:15,wheat:-8,tech:-5,bank:-5,build:0}},
+            {text:'📉 Тёплая зима в Европе',effects:{silver:0,oil:-5,gas:-18,wheat:0,tech:0,bank:0,build:0}},
+            {text:'📈 Снижение ставки ЦБ',effects:{silver:5,oil:8,gas:8,wheat:5,tech:12,bank:15,build:12}},
+            {text:'📈 Рост спроса на технологии',effects:{silver:-3,oil:-3,gas:-3,wheat:0,tech:15,bank:5,build:0}}
+        ];
+        let empire={re:[],cars:[],biz:[]},lastCollect=0;
+        let reItems=[
+            {icon:'🏢',name:'Студия',price:10000,inc:200,level:1},{icon:'🏢',name:'1-к квартира',price:16000,inc:320,level:1},
+            {icon:'🏢',name:'2-к квартира',price:24000,inc:480,level:1},{icon:'🏢',name:'3-к квартира',price:36000,inc:720,level:1},
+            {icon:'🏠',name:'Дом',price:60000,inc:1200,level:1},{icon:'🏡',name:'Таунхаус',price:50000,inc:1000,level:1},
+            {icon:'🏰',name:'Замок',price:200000,inc:4000,level:1},{icon:'🏬',name:'Офис',price:100000,inc:2000,level:1},
+            {icon:'🏭',name:'Склад',price:40000,inc:800,level:1},{icon:'🌆',name:'Пентхаус',price:160000,inc:3200,level:1}
+        ];
+        let carItems=[
+            {icon:'🚗',name:'Lada Granta',price:6000,inc:120,level:1},{icon:'🚗',name:'Kia Rio',price:10000,inc:200,level:1},
+            {icon:'🚙',name:'Hyundai Creta',price:16000,inc:320,level:1},{icon:'🚙',name:'Toyota Camry',price:24000,inc:480,level:1},
+            {icon:'🚘',name:'BMW 3',price:40000,inc:800,level:1},{icon:'🚘',name:'Mercedes E',price:60000,inc:1200,level:1},
+            {icon:'🏎️',name:'Porsche 911',price:120000,inc:2400,level:1},{icon:'🏎️',name:'Lamborghini',price:300000,inc:6000,level:1}
+        ];
+        let bizItems=[
+            {icon:'☕',name:'Кофейня',price:8000,inc:160,level:1,customName:'',sign:0,ads:0,workers:0,repair:0,floors:1,equipment:0,delivery:false},
+            {icon:'🍕',name:'Пиццерия',price:16000,inc:320,level:1,customName:'',sign:0,ads:0,workers:0,repair:0,floors:1,equipment:0,delivery:false},
+            {icon:'🍔',name:'Бургерная',price:14000,inc:280,level:1,customName:'',sign:0,ads:0,workers:0,repair:0,floors:1,equipment:0,delivery:false},
+            {icon:'🍣',name:'Суши-бар',price:20000,inc:400,level:1,customName:'',sign:0,ads:0,workers:0,repair:0,floors:1,equipment:0,delivery:false},
+            {icon:'🍜',name:'Ресторан',price:40000,inc:800,level:1,customName:'',sign:0,ads:0,workers:0,repair:0,floors:1,equipment:0,delivery:false}
+        ];
+        let rentRequests=[],carRentRequests=[],activeRentals=[];
+        function generateRentRequests(){
+            const types=[{name:'Студия',basePrice:200},{name:'1-к квартира',basePrice:320},{name:'2-к квартира',basePrice:480},{name:'3-к квартира',basePrice:720},{name:'Дом',basePrice:1200},{name:'Таунхаус',basePrice:1000},{name:'Замок',basePrice:4000},{name:'Офис',basePrice:2000},{name:'Склад',basePrice:800},{name:'Пентхаус',basePrice:3200}];
+            const carTypes=[{name:'Lada Granta',basePrice:120},{name:'Kia Rio',basePrice:200},{name:'Hyundai Creta',basePrice:320},{name:'Toyota Camry',basePrice:480},{name:'BMW 3',basePrice:800},{name:'Mercedes E',basePrice:1200},{name:'Porsche 911',basePrice:2400},{name:'Lamborghini',basePrice:6000}];
+            const names=['🧑 Бизнесмен','👩 Студентка','🧔 Семьянин','👴 Пенсионер','👨‍💼 IT-спец','👩‍⚕️ Врач'];
+            rentRequests=[];carRentRequests=[];
+            for(let i=0;i<5;i++){const td=types[Math.floor(Math.random()*types.length)];rentRequests.push({id:Date.now()+i,from:names[Math.floor(Math.random()*names.length)],type:td.name,days:Math.floor(Math.random()*5)+1,price:Math.floor(td.basePrice*(0.9+Math.random()*0.2)),total:Math.floor(td.basePrice*(0.9+Math.random()*0.2))*(Math.floor(Math.random()*5)+1)});}
+            for(let i=0;i<5;i++){const td=carTypes[Math.floor(Math.random()*carTypes.length)];carRentRequests.push({id:Date.now()+100+i,from:names[Math.floor(Math.random()*names.length)],type:td.name,days:Math.floor(Math.random()*5)+1,price:Math.floor(td.basePrice*(0.9+Math.random()*0.2)),total:Math.floor(td.basePrice*(0.9+Math.random()*0.2))*(Math.floor(Math.random()*5)+1)});}
+        }
+        const books=[{title:'Самый богатый человек в Вавилоне',desc:'Классика. Притчи о деньгах.'},{title:'Богатый папа, бедный папа',desc:'Активы vs пассивы.'},{title:'Психология денег',desc:'Эмоции в финансах.'},{title:'Думай и богатей',desc:'13 принципов.'},{title:'Путь к финансовой свободе',desc:'План на 7 лет.'}];
+        const avatarIcons=['👤','🐯','🦁','🐶','🦊','🕷️','🦸','🐱','🐼','🐧','🦉','🐉'];
+        const learnTopics=[
+            {id:'what_is',icon:'🎓',title:'Что такое финансовая грамотность?',short:'Базовые знания',content:'Умение управлять деньгами.',example:'Деньги — вода в ведре.',life:'1000₽ — 500 оставь, 300 отложи, 200 вложи.'},
+            {id:'why',icon:'❓',title:'Зачем школьнику?',short:'Привычки',content:'В 14 научишься — в 30 квартира.',example:'Ваня тратит, Петя копит.',life:'Телефон за 30 000? Копи 200₽/нед.'},
+            {id:'budget',icon:'📊',title:'Бюджет',short:'50/30/20',content:'Нужное, хотелки, копилка.',example:'Мелочи — 500₽/нед.',life:'Убрал лишнее — цель ближе.'},
+            {id:'pillow',icon:'🛡️',title:'Подушка',short:'Резерв',content:'3-6 месяцев.',example:'Ремонт 3000 — с подушкой чинишь.',life:'Потерял кошелёк — подушка спасёт.'},
+            {id:'inflation',icon:'📈',title:'Инфляция',short:'Цены растут',content:'5-10% в год.',example:'Шоколадка 50→55.',life:'Копишь — инвестируй.'},
+            {id:'banks',icon:'🏦',title:'Банки',short:'Вклады',content:'ЦБ, депозиты.',example:'1000 под 10% → кредит под 20%.',life:'Вклад с 14 лет.'},
+            {id:'cards',icon:'💳',title:'Карты',short:'Дебет/кредит',content:'Кэшбэк, льготный период.',example:'Кроссовки 3000 — верни без %.',life:'Кредитка для срочного.'},
+            {id:'stocks_t',icon:'📊',title:'Акции',short:'Доля в бизнесе',content:'Рост + дивиденды.',example:'1000 в киоск → доля прибыли.',life:'Веришь в идею — купи акции.'},
+            {id:'bonds_t',icon:'📜',title:'Облигации',short:'Дать в долг',content:'Надёжнее акций.',example:'Дал 1000 — вернут 1050.',life:'ОФЗ под 12%.'},
+            {id:'compound',icon:'❄️',title:'Сложный %',short:'Снежный ком',content:'S=P(1+r)^n.',example:'С 14 по 200 > с 25 по 500.',life:'100 000 → 1,6 млн за 20 лет.'},
+            {id:'goals',icon:'🎯',title:'Цели',short:'SMART',content:'Конкретные, измеримые.',example:'"80 000 к сентябрю".',life:'140₽/день — уже шаг.'},
+            {id:'diversification',icon:'🧺',title:'Диверсификация',short:'Не в одну корзину',content:'Распределяй.',example:'Акции -20%, золото +15%.',life:'Не всё в один банк.'},
+            {id:'taxes',icon:'🧾',title:'Налоги',short:'НДФЛ 13%',content:'Вычеты за лечение, обучение.',example:'Заработал 1000 — 130 государству.',life:'Родители могут вернуть 13%.'},
+            {id:'fraud',icon:'🚫',title:'Мошенники',short:'Защита',content:'Не давай CVV.',example:'Звонок "из банка" — клади трубку.',life:'Проверь друга звонком.'},
+            {id:'insurance',icon:'🛡️',title:'Страхование',short:'Защита',content:'ОСАГО, КАСКО, ДМС.',example:'Разбил машину — ОСАГО платит.',life:'Квартира застрахована — спи спокойно.'},
+            {id:'credit_history',icon:'📋',title:'Кредитная история',short:'Паспорт',content:'Плати вовремя.',example:'Хорошая история — ипотека под низкий %.',life:'Первая кредитка — создай историю.'},
+            {id:'pension',icon:'👴',title:'Пенсия',short:'Начинай рано',content:'Госпенсия мала.',example:'500₽/мес с 18 = 5 млн к 60.',life:'5% дохода в инвестиции.'},
+            {id:'fire',icon:'🔥',title:'FIRE',short:'Свобода',content:'Капитал = расходы × 25.',example:'360 000₽/год × 25 = 9 млн.',life:'Мечтаешь не работать? Считай.'},
+            {id:'crypto',icon:'₿',title:'Криптовалюта',short:'Риск',content:'±90% за год.',example:'Биткоин: 1₽ → 5 млн → 2 млн.',life:'Только свободные деньги.'},
+            {id:'psychology',icon:'🧠',title:'Психология денег',short:'Эмоции',content:'Жадность и страх — враги.',example:'Покупал на пике — продал на дне.',life:'Подожди 24 часа перед покупкой.'}
+        ];
+        function getTopEffect(effects){let maxEffect=0,topAsset='';Object.entries(effects).forEach(([k,v])=>{if(Math.abs(v)>Math.abs(maxEffect)){maxEffect=v;topAsset=k;}});if(maxEffect===0)return'Нейтральная';return`${assets[topAsset]?.name||topAsset} ${maxEffect>0?'📈':'📉'}`;}
+        function render(){
+            const app=document.getElementById('appContainer');let html='';
+            html+=`<div id="home-page" class="page ${currentPage==='home'?'active':''}"><div class="card" style="text-align:center"><h1>Финансовая грамотность <span style="color:#FBBF24">для школьников</span></h1><p style="color:#94A3B8">Управляй деньгами!</p><button class="btn" data-go="learn">📚</button><button class="btn btn-secondary" data-go="stocks">📈</button></div><div class="grid"><div class="card"><h3>📚</h3></div><div class="card"><h3>📈</h3></div><div class="card"><h3>🏪</h3></div><div class="card"><h3>🏠</h3></div></div><div class="card"><div><span class="stat-value">${balance.toFixed(1)}</span><br>🪙</div></div></div>`;
+            if(currentPage==='learn'){if(currentLearnTopic){const topic=learnTopics.find(t=>t.id===currentLearnTopic);if(topic){html+=`<div id="learn-page" class="page active"><button class="btn btn-secondary" id="backToLearn">← Назад</button><h2 style="color:#FBBF24;margin:15px 0">${topic.icon} ${topic.title}</h2><div class="learn-detail-card"><h4>📖</h4><p>${topic.content}</p></div><div class="learn-detail-card"><h4>💡</h4><div class="example-box">${topic.example}</div></div><div class="learn-detail-card"><h4>🎯</h4><div class="life-box">${topic.life}</div></div></div>`;}}else{html+=`<div id="learn-page" class="page active"><h2 style="color:#FBBF24;margin-bottom:15px">📚 Обучение (20 тем)</h2><div class="grid">${learnTopics.map(t=>`<div class="learn-topic-card" data-topic="${t.id}"><div class="learn-topic-icon">${t.icon}</div><h4>${t.title}</h4><p>${t.short}</p></div>`).join('')}</div></div>`;}}else{html+=`<div id="learn-page" class="page"></div>`;}
+            html+=`<div id="books-page" class="page ${currentPage==='books'?'active':''}"><h2 style="color:#FBBF24">📖</h2><div class="grid">${books.map((b,i)=>`<div class="card"><h4 style="color:#FBBF24">${b.title}</h4><p style="color:#94A3B8">${b.desc}</p><button class="btn-small read-btn" data-book="${i}" ${readBooks.includes(i)?'disabled':''}>${readBooks.includes(i)?'✓':'✓ +100🪙'}</button></div>`).join('')}</div></div>`;
+            html+=`<div id="stocks-page" class="page ${currentPage==='stocks'?'active':''}"><h2 style="color:#FBBF24">📈 Акции</h2><div class="card"><p>💼 ${Object.values(stockInvested).reduce((a,b)=>a+b,0)} 🪙</p><p class="income-badge">📈 ${Math.floor(Object.entries(stockInvested).reduce((s,[k,v])=>s+v*0.02,0))} 🪙/10 мин</p></div><div class="grid">${Object.entries(stockPrices).map(([k,price])=>`<div class="card"><h4>${{nike:'👟 Nike',adidas:'👟 Adidas',apple:'🍎 Apple',tesla:'🚗 Tesla',mcdonalds:'🍔 McDonald\'s',cola:'🥤 Coca-Cola'}[k]}</h4><p>${price.toLocaleString()} 🪙</p><input type="number" id="invest-${k}" placeholder="Сумма"><button class="btn-small buy-stock" data-stock="${k}">Купить</button></div>`).join('')}</div></div>`;
+            html+=`<div id="exchange-page" class="page ${currentPage==='exchange'?'active':''}"><h2 style="color:#FBBF24">🛢️ Биржа</h2><div class="card"><p>🪙 ${balance.toFixed(1)} | 📅 ${day}</p><div class="news-banner"><strong>📰 ${currentNews.text}</strong><br><span style="color:#94A3B8">⏳ ${4-daysSinceLastNews} ходов</span><br><span style="color:#FBBF24">📊 ${getTopEffect(currentNews.effects)}</span></div><select id="assetSelect">${Object.keys(assets).map(k=>`<option value="${k}" ${k===selectedAsset?'selected':''}>${assets[k].name}</option>`).join('')}</select><canvas id="priceChart" width="300" height="180" style="margin:10px 0"></canvas><div class="grid">${Object.entries(assets).map(([k,v])=>`<div class="card"><h4>${v.name}</h4><p>${v.price.toFixed(1)} 🪙</p><p>У тебя: ${portfolio[k]}</p><button class="btn-small buy-btn" data-k="${k}">Купить</button><button class="btn-small btn-secondary sell-btn" data-k="${k}">Продать</button></div>`).join('')}</div><button class="btn" id="nextDayBtn">📅 (-${Object.values(portfolio).some(v=>v>0)?(consecutiveNextDays>=10?6:4):1}🪙)</button></div></div>`;
+            const income=empire.re.reduce((s,i)=>s+i.inc*i.level,0)+empire.cars.reduce((s,i)=>s+i.inc*i.level,0)+empire.biz.reduce((s,i)=>s+i.inc*i.level,0);
+            html+=`<div id="empire-page" class="page ${currentPage==='empire'?'active':''}"><h2 style="color:#FBBF24">🏢 Империя</h2><div class="card"><p>💰 ${balance.toFixed(1)}</p><p>📈 ${income}/10 мин</p><button class="btn" id="collectBtn">💵</button></div><h3>🏠 Недвижимость</h3><div class="grid">${reItems.map((i,idx)=>`<div class="empire-item"><div class="empire-icon">${i.icon}</div><h4>${i.name}</h4><p>💰 ${i.price}</p><p class="income-badge">+${i.inc*i.level}/10 мин</p><button class="btn-small buy-re" data-idx="${idx}">Купить</button>${empire.re.filter(r=>r.name===i.name).length>0?`<button class="btn-small upgrade-re" data-idx="${idx}">⬆️</button>`:''}</div>`).join('')}</div><h3>🚗 Машины</h3><div class="grid">${carItems.map((i,idx)=>`<div class="empire-item"><div class="empire-icon">${i.icon}</div><h4>${i.name}</h4><p>💰 ${i.price}</p><p class="income-badge">+${i.inc*i.level}/10 мин</p><button class="btn-small buy-car" data-idx="${idx}">Купить</button>${empire.cars.filter(c=>c.name===i.name).length>0?`<button class="btn-small upgrade-car" data-idx="${idx}">⬆️</button>`:''}</div>`).join('')}</div><h3>🏪 Бизнес</h3><div class="grid">${bizItems.map((i,idx)=>`<div class="empire-item"><div class="empire-icon">${i.icon}</div><h4>${i.customName||i.name}</h4><p>💰 ${i.price}</p><p class="income-badge">+${Math.floor(i.price*0.02)}/10 мин</p><input type="text" id="bizname-${idx}" placeholder="Название" value="${i.customName||''}"><button class="btn-small buy-biz" data-idx="${idx}">Купить</button></div>`).join('')}</div></div>`;
+            html+=`<div id="rent-page" class="page ${currentPage==='rent'?'active':''}"><h2 style="color:#FBBF24">🏠 Аренда</h2><button class="btn btn-secondary" id="refreshRent">🔄</button><h3>📋 Недвижимость</h3><div id="rentRequests">${rentRequests.map(r=>`<div class="rent-request"><p><strong>${r.from}</strong> хочет снять <strong>${r.type}</strong> на ${r.days} дн.</p><p>💰 ${r.price} 🪙/день</p><select id="rent-select-${r.id}">${empire.re.filter(obj=>obj.name===r.type).map((obj,i)=>`<option value="${i}">${obj.name}</option>`).join('')}</select><button class="btn-small accept-rent" data-id="${r.id}" data-type="${r.type}" data-category="re">Сдать</button></div>`).join('')}</div><h3>🚗 Машины</h3><div id="carRentRequests">${carRentRequests.map(r=>`<div class="rent-request"><p><strong>${r.from}</strong> хочет <strong>${r.type}</strong> на ${r.days} дн.</p><p>💰 ${r.price} 🪙/день</p><select id="car-rent-select-${r.id}">${empire.cars.filter(obj=>obj.name===r.type).map((obj,i)=>`<option value="${i}">${obj.name}</option>`).join('')}</select><button class="btn-small accept-rent" data-id="${r.id}" data-type="${r.type}" data-category="cars">Сдать</button></div>`).join('')}</div></div>`;
+            html+=`<div id="myBusiness-page" class="page ${currentPage==='myBusiness'?'active':''}"><h2 style="color:#FBBF24">🏪 Мои бизнесы</h2>`;
+            if(empire.biz.length===0){html+=`<div class="card"><p>Нет бизнесов.</p></div>`;}
+            else if(selectedBizIndex!==null&&selectedBizIndex<empire.biz.length){const b=empire.biz[selectedBizIndex],bt=bizItems.find(bi=>bi.name===b.name)||b;const boost=1+(bt.sign||0)*0.03+(bt.ads||0)*0.05+(bt.workers||0)*0.07+(bt.floors-1)*0.1+(bt.equipment||0)*0.08+(bt.delivery?0.1:0);html+=`<button class="btn btn-secondary" id="backToBizList">← К списку</button><div class="card"><div class="empire-icon">${b.icon}</div><h3>${b.customName||b.name}</h3><p class="income-badge">📈 ${Math.floor(b.price*0.02*boost)}/10 мин (×${boost.toFixed(1)})</p></div><div class="grid"><div class="biz-detail-card"><h4>🪧 (${bt.sign||0})</h4><button class="btn-small biz-upgrade" data-idx="${selectedBizIndex}" data-upg="sign" data-cost="${200+(bt.sign||0)*100}">${200+(bt.sign||0)*100}🪙</button></div><div class="biz-detail-card"><h4>📢 (${bt.ads||0})</h4><button class="btn-small biz-upgrade" data-idx="${selectedBizIndex}" data-upg="ads" data-cost="${300+(bt.ads||0)*150}">${300+(bt.ads||0)*150}🪙</button></div><div class="biz-detail-card"><h4>👷 (${bt.workers||0})</h4><button class="btn-small biz-upgrade" data-idx="${selectedBizIndex}" data-upg="workers" data-cost="${400+(bt.workers||0)*200}">${400+(bt.workers||0)*200}🪙</button></div><div class="biz-detail-card"><h4>🔧 (${bt.repair||0}/5)</h4><button class="btn-small biz-upgrade" data-idx="${selectedBizIndex}" data-upg="repair" data-cost="${200+(bt.repair||0)*100}">${200+(bt.repair||0)*100}🪙</button></div><div class="biz-detail-card"><h4>🏗️ (${bt.floors||1})</h4><button class="btn-small biz-upgrade" data-idx="${selectedBizIndex}" data-upg="floors" data-cost="${800+(bt.floors||1)*500}">${800+(bt.floors||1)*500}🪙</button></div><div class="biz-detail-card"><h4>⚙️ (${bt.equipment||0})</h4><button class="btn-small biz-upgrade" data-idx="${selectedBizIndex}" data-upg="equipment" data-cost="${600+(bt.equipment||0)*300}">${600+(bt.equipment||0)*300}🪙</button></div></div><button class="btn ${bt.delivery?'btn-secondary':''}" id="toggleDelivery">🚚 ${bt.delivery?'✅':'❌'} (${bt.delivery?0:1000}🪙)</button>`;}else{html+=`<div class="grid">${empire.biz.map((b,i)=>`<div class="card" data-biz="${i}"><div class="empire-icon">${b.icon}</div><h4>${b.customName||b.name}</h4><p class="income-badge">+${Math.floor(b.price*0.02)}/10 мин</p></div>`).join('')}</div>`;}html+=`</div>`;
+            html+=`<div id="custom-page" class="page ${currentPage==='custom'?'active':''}"><h2 style="color:#FBBF24">🎨</h2><div class="card"><h3>Аватарки</h3><div class="grid" id="avatarGrid"></div><h3>Рамки</h3><div class="grid"><div class="card"><div class="frame-preview">${customization.icon}</div><p>Обычная</p><button class="btn-small buy-frame" data-frame="default" data-price="0">0 🪙</button></div><div class="card"><div class="frame-preview silver">${customization.icon}</div><p>Серебро</p><button class="btn-small buy-frame" data-frame="silver" data-price="1000">1000 🪙</button></div><div class="card"><div class="frame-preview gold">${customization.icon}</div><p>Золото</p><button class="btn-small buy-frame" data-frame="gold" data-price="5000">5000 🪙</button></div><div class="card"><div class="frame-preview neon">${customization.icon}</div><p>Неон</p><button class="btn-small buy-frame" data-frame="neon" data-price="10000">10000 🪙</button></div></div></div></div>`;
+            html+=`<div id="news-page" class="page ${currentPage==='news'?'active':''}"><h2 style="color:#FBBF24">📰</h2>${newsHistory.slice(0,10).map(n=>`<div class="news-item"><strong>День ${n.day}:</strong> ${n.text}</div>`).join('')}</div>`;
+            const frameClass=customization.frame==='silver'?'silver':(customization.frame==='gold'?'gold':(customization.frame==='neon'?'neon':''));
+            // Профиль с арендой
+            const rentedRE = activeRentals.filter(a => a.category === undefined || a.obj).map(a => a.obj || a).filter(o => o && reItems.some(ri => ri.name === o.name));
+            const rentedCars = activeRentals.filter(a => a.category === undefined || a.obj).map(a => a.obj || a).filter(o => o && carItems.some(ci => ci.name === o.name));
+            const allRE = [...empire.re.map(r => ({...r, rented: false})), ...activeRentals.map(a => a.obj).filter(o => o && reItems.some(ri => ri.name === o.name)).map(o => ({...o, rented: true}))];
+            const allCars = [...empire.cars.map(c => ({...c, rented: false})), ...activeRentals.map(a => a.obj).filter(o => o && carItems.some(ci => ci.name === o.name)).map(o => ({...o, rented: true}))];
+            html+=`<div id="profile-page" class="page ${currentPage==='profile'?'active':''}"><h2 style="color:#FBBF24">👤 Профиль</h2><div class="card" style="text-align:center"><div class="frame-preview ${frameClass}">${customization.icon}</div><h3>Игрок</h3><p><span class="level-badge">Ур. ${level}</span></p><div class="progress-bar"><div class="progress-fill" style="width:${(xp/5000)*100}%"></div></div><p>${xp}/5000 XP</p><p><span class="stat-value">${balance.toFixed(1)}</span> 🪙</p></div><div class="card" style="margin-top:15px"><h3 style="color:#FBBF24">🏢 Империя</h3><p><strong>🏠 Недвижимость (${allRE.length}):</strong> ${allRE.map(r=>`${r.icon} ${r.name} ⭐${r.level}${r.rented?' <span class="rented-badge">в аренде</span>':''}`).join(', ')||'Нет'}</p><p><strong>🚗 Машины (${allCars.length}):</strong> ${allCars.map(c=>`${c.icon} ${c.name} ⭐${c.level}${c.rented?' <span class="rented-badge">в аренде</span>':''}`).join(', ')||'Нет'}</p><p><strong>🏪 Бизнесы (${empire.biz.length}):</strong> ${empire.biz.map(b=>`${b.icon} ${b.customName||b.name} ⭐${b.level}`).join(', ')||'Нет'}</p><p class="income-badge">📈 Доход: ${income} 🪙/10 мин</p></div></div>`;
+            app.innerHTML=html;
+            if(currentPage==='custom')renderAvatars();
+            if(currentPage==='rent')attachRentEvents();
+            if(currentPage==='myBusiness')attachBizEvents();
+            attachEvents();
+            if(currentPage==='exchange')drawChart();
+            updateAllBalances();saveGame();
+        }
+        function renderAvatars(){document.getElementById('avatarGrid').innerHTML=avatarIcons.map(icon=>`<div class="card" style="text-align:center"><div style="font-size:3rem">${icon}</div><button class="btn-small buy-avatar" data-icon="${icon}" data-price="500">500 🪙</button></div>`).join('');}
+        function attachBizEvents(){
+            document.querySelectorAll('.biz-upgrade').forEach(b=>{b.onclick=()=>{const idx=parseInt(b.dataset.idx),upg=b.dataset.upg,cost=parseInt(b.dataset.cost);if(balance>=cost){balance-=cost;const bt=bizItems.find(bi=>bi.name===empire.biz[idx].name);if(bt){if(upg==='sign')bt.sign=(bt.sign||0)+1;else if(upg==='ads')bt.ads=(bt.ads||0)+1;else if(upg==='workers')bt.workers=(bt.workers||0)+1;else if(upg==='repair'&&(bt.repair||0)<5)bt.repair=(bt.repair||0)+1;else if(upg==='floors')bt.floors=(bt.floors||1)+1;else if(upg==='equipment')bt.equipment=(bt.equipment||0)+1;}updateAllBalances();render();saveGame();}else alert('Недостаточно!');};});
+            document.getElementById('toggleDelivery')?.addEventListener('click',()=>{const bt=bizItems.find(bi=>bi.name===empire.biz[selectedBizIndex].name);if(bt){if(!bt.delivery){if(balance>=1000){balance-=1000;bt.delivery=true;}else return alert('Недостаточно!');}else{bt.delivery=false;}}updateAllBalances();render();saveGame();});
+            document.getElementById('backToBizList')?.addEventListener('click',()=>{selectedBizIndex=null;render();});
+            document.querySelectorAll('[data-biz]').forEach(c=>{c.onclick=()=>{selectedBizIndex=parseInt(c.dataset.biz);render();};});
+        }
+        function attachRentEvents(){
+            document.querySelectorAll('.accept-rent').forEach(b=>{b.onclick=()=>{const id=parseFloat(b.dataset.id),type=b.dataset.type,cat=b.dataset.category;let req,arr;if(cat==='re'){req=rentRequests.find(r=>r.id===id);arr=empire.re;}else{req=carRentRequests.find(r=>r.id===id);arr=empire.cars;}if(!req)return;const obj=arr.filter(o=>o.name===type)[parseInt(document.getElementById(`${cat==='re'?'rent':'car-rent'}-select-${id}`).value)];if(!obj){alert(`Нет ${type}!`);return;}if(cat==='re'){empire.re=empire.re.filter(o=>o!==obj);rentRequests=rentRequests.filter(r=>r.id!==id);}else{empire.cars=empire.cars.filter(o=>o!==obj);carRentRequests=carRentRequests.filter(r=>r.id!==id);}activeRentals.push({...req,obj,endTime:Date.now()+req.days*600000});balance+=req.total;updateAllBalances();render();saveGame();alert(`+${req.total} 🪙`);};});
+            document.getElementById('refreshRent').onclick=()=>{if(Date.now()-lastRentRefresh<10000)return alert('Раз в 10 сек!');lastRentRefresh=Date.now();generateRentRequests();render();};
+        }
+        function drawChart(){const canvas=document.getElementById('priceChart');if(!canvas)return;const ctx=canvas.getContext('2d'),hist=assets[selectedAsset].history,w=300,h=180;canvas.width=w;canvas.height=h;ctx.clearRect(0,0,w,h);if(hist.length<2)return;const max=Math.max(...hist),min=Math.min(...hist),range=max-min||1;ctx.strokeStyle='#334155';ctx.lineWidth=0.5;for(let i=0;i<=4;i++){const y=20+(h-40)*(i/4);ctx.beginPath();ctx.moveTo(35,y);ctx.lineTo(w-10,y);ctx.stroke();ctx.fillStyle='#94A3B8';ctx.font='9px Arial';ctx.fillText((max-(i/4)*range).toFixed(0)+'🪙',2,y+3);}ctx.beginPath();ctx.strokeStyle='#FBBF24';ctx.lineWidth=2;hist.forEach((p,i)=>{const x=35+(i/(hist.length-1))*(w-45);const y=20+((max-p)/range)*(h-40);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();}
+        function updateAllBalances(){document.getElementById('mobileBalance').textContent=balance.toFixed(1);document.getElementById('mobileLevel').textContent=`Ур. ${level}`;}
+        function attachEvents(){
+            document.querySelectorAll('[data-page]').forEach(el=>{el.onclick=()=>{currentPage=el.dataset.page;document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));el.classList.add('active');if(currentPage==='learn')currentLearnTopic=null;if(currentPage==='myBusiness')selectedBizIndex=null;render();};});
+            document.querySelectorAll('[data-go]').forEach(el=>{el.onclick=()=>{currentPage=el.dataset.go;render();};});
+            document.querySelectorAll('.learn-topic-card').forEach(c=>{c.onclick=()=>{currentLearnTopic=c.dataset.topic;render();};});
+            document.getElementById('backToLearn')?.addEventListener('click',()=>{currentLearnTopic=null;render();});
+            document.querySelectorAll('.buy-btn').forEach(b=>{b.onclick=()=>{const k=b.dataset.k;const current=portfolio[k]||0;if(current>=10){alert('Нельзя иметь больше 10 единиц одного актива!');return;}if(balance>=assets[k].price){balance-=assets[k].price;portfolio[k]=(portfolio[k]||0)+1;render();saveGame();}else alert('Недостаточно!');};});
+            document.querySelectorAll('.sell-btn').forEach(b=>{b.onclick=()=>{const k=b.dataset.k;if(portfolio[k]>0){portfolio[k]--;balance+=assets[k].price;render();saveGame();}else alert('Нет!');};});
+            document.getElementById('nextDayBtn').onclick=()=>{
+                const hasStocks=Object.values(portfolio).some(v=>v>0);
+                if(hasStocks){consecutiveNextDays++;}else{consecutiveNextDays=0;}
+                const cost=hasStocks?(consecutiveNextDays>=10?6:4):1;
+                if(balance<cost)return alert('Недостаточно!');balance-=cost;day++;daysSinceLastNews++;
+                if(daysSinceLastNews>=4&&currentNews.remaining<=0){daysSinceLastNews=0;const news=newsList[Math.floor(Math.random()*newsList.length)];currentNews={text:news.text,effects:{...news.effects},remaining:4};newsHistory.unshift({day,text:news.text});if(newsHistory.length>10)newsHistory.pop();}
+                if(currentNews.remaining>0){currentNews.remaining--;}
+                Object.keys(assets).forEach(k=>{const effect=currentNews.remaining>=0?(currentNews.effects[k]||0):0;const deviation=(assets[k].price-basePrices[k])/basePrices[k];const meanReversion=-deviation*0.5;const randomChange=(Math.random()*12-6)*(Math.random()>0.5?1:-1);const change=effect+randomChange+meanReversion;assets[k].price=Math.max(50,assets[k].price*(1+change/100));assets[k].history.push(assets[k].price);if(assets[k].history.length>15)assets[k].history.shift();});
+                Object.keys(stockPrices).forEach(k=>{stockPrices[k]=Math.max(50000,stockPrices[k]*(1+(Math.random()*6-3)/100));});render();saveGame();
+            };
+            document.getElementById('assetSelect').onchange=(e)=>{selectedAsset=e.target.value;drawChart();};
+            document.querySelectorAll('.buy-re').forEach(b=>{b.onclick=()=>{const i=reItems[parseInt(b.dataset.idx)];if(balance>=i.price){balance-=i.price;empire.re.push({...i});render();saveGame();}else alert('Недостаточно!');};});
+            document.querySelectorAll('.upgrade-re').forEach(b=>{b.onclick=()=>{const i=reItems[parseInt(b.dataset.idx)];const cost=Math.floor(i.price*(0.35+(i.level-1)*0.09));if(i.level>=8)return alert('Макс!');if(balance>=cost){balance-=cost;i.level++;i.inc=Math.floor(i.price*0.02);render();saveGame();}else alert('Недостаточно!');};});
+            document.querySelectorAll('.buy-car').forEach(b=>{b.onclick=()=>{const i=carItems[parseInt(b.dataset.idx)];if(balance>=i.price){balance-=i.price;empire.cars.push({...i});render();saveGame();}else alert('Недостаточно!');};});
+            document.querySelectorAll('.upgrade-car').forEach(b=>{b.onclick=()=>{const i=carItems[parseInt(b.dataset.idx)];const cost=Math.floor(i.price*(0.35+(i.level-1)*0.09));if(i.level>=8)return alert('Макс!');if(balance>=cost){balance-=cost;i.level++;i.inc=Math.floor(i.price*0.02);render();saveGame();}else alert('Недостаточно!');};});
+            document.querySelectorAll('.buy-biz').forEach(b=>{b.onclick=()=>{const i=bizItems[parseInt(b.dataset.idx)];const ni=document.getElementById(`bizname-${parseInt(b.dataset.idx)}`);if(ni)i.customName=ni.value||i.name;if(balance>=i.price){balance-=i.price;empire.biz.push({...i});render();saveGame();}else alert('Недостаточно!');};});
+            document.getElementById('collectBtn').onclick=()=>{const inc=empire.re.reduce((s,i)=>s+i.inc*i.level,0)+empire.cars.reduce((s,i)=>s+i.inc*i.level,0)+empire.biz.reduce((s,i)=>s+i.inc*i.level,0);if(inc===0)return alert('Нет!');balance+=inc;render();saveGame();alert(`+${inc} 🪙`);};
+            document.querySelectorAll('.read-btn').forEach(b=>{b.onclick=function(){const bi=parseInt(this.dataset.book);if(!readBooks.includes(bi)){this.disabled=true;this.textContent='✓ Прочитано';readBooks.push(bi);balance+=100;xp+=100;render();saveGame();}};});
+            document.querySelectorAll('.buy-avatar').forEach(b=>{b.onclick=()=>{if(balance>=500){balance-=500;customization.icon=b.dataset.icon;updateAllBalances();render();saveGame();}else alert('Недостаточно!');};});
+            document.querySelectorAll('.buy-frame').forEach(b=>{b.onclick=()=>{if(balance>=parseInt(b.dataset.price)){balance-=parseInt(b.dataset.price);customization.frame=b.dataset.frame;updateAllBalances();render();saveGame();}else alert('Недостаточно!');};});
+            document.querySelectorAll('.buy-stock').forEach(b=>{b.onclick=()=>{const stock=b.dataset.stock;const amount=parseInt(document.getElementById(`invest-${stock}`).value);if(amount>0&&balance>=amount){balance-=amount;stockInvested[stock]+=amount;render();saveGame();}else alert('Недостаточно!');};});
+        }
+        function collectAllIncome(){const inc=empire.re.reduce((s,i)=>s+i.inc*i.level,0)+empire.cars.reduce((s,i)=>s+i.inc*i.level,0)+empire.biz.reduce((s,i)=>s+i.inc*i.level,0);if(inc>0){balance+=inc;capital+=inc;}Object.entries(stockInvested).forEach(([k,v])=>{if(v>0){balance+=Math.floor(v*0.02);capital+=Math.floor(v*0.02);}});updateAllBalances();saveGame();Object.keys(stockPrices).forEach(k=>{stockPrices[k]=Math.max(50000,stockPrices[k]*(1+(Math.random()*4-2)/100));});}
+        loadGame();generateRentRequests();render();
+        setInterval(saveGame,5000);setInterval(collectAllIncome,420000);
+    </script>
+</body>
+</html>
